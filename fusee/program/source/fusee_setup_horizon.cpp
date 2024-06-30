@@ -503,7 +503,7 @@ namespace ams::nxboot {
             /* Parse fields from exosphere.ini */
             {
                 IniSectionList sections;
-                if (ParseIniSafe(sections, "sdmc:/exosphere.ini")) {
+                if (ParseIniSafe(sections, "sdmc:/atmosphere/config/exosphere.ini")) {
                     for (const auto &section : sections) {
                         /* We only care about the [exosphere] section. */
                         if (std::strcmp(section.name, "exosphere")) {

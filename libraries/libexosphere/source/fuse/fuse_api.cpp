@@ -320,6 +320,8 @@ namespace ams::fuse {
     DramId GetDramId() {
         /* Get the value. */
         return static_cast<DramId>(GetDramIdValue(util::BitPack32{GetCommonOdmWord(4)}));
+        /* 8GB RAM for Kefirosphere */
+        //return DramId_AulaSamsung1y8GBX;
     }
 
     HardwareType GetHardwareType() {
@@ -359,7 +361,11 @@ namespace ams::fuse {
     }
 
     RetailInteractiveDisplayState GetRetailInteractiveDisplayState() {
-        return static_cast<RetailInteractiveDisplayState>(util::BitPack32{GetCommonOdmWord(4)}.Get<OdmWord4::RetailInteractiveDisplayState>());
+        /* 추가 부위 */
+        return RetailInteractiveDisplayState_Disabled;
+
+        /* 제거 부위 */
+        // return static_cast<RetailInteractiveDisplayState>(util::BitPack32{GetCommonOdmWord(4)}.Get<OdmWord4::RetailInteractiveDisplayState>());
     }
 
     pmic::Regulator GetRegulator() {

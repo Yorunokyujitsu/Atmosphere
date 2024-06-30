@@ -34,10 +34,14 @@ def main(argc, argv):
     assert len(package3) == 0x800000
     splash_bin = convert_image(argv[1])
     assert len(splash_bin) == 0x3C0000
+    with open('splash.bin', 'wb') as f:
+        f.write(splash_bin)
+    print("Splash image saved to splash.bin")
     with open(argv[2], 'wb') as f:
         f.write(package3[:0x400000])
         f.write(splash_bin)
         f.write(package3[0x7C0000:])
+    print("Package file updated with new splash image.")
     return 0
 
 if __name__ == '__main__':

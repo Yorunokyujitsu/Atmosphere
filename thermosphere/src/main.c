@@ -101,7 +101,7 @@ int main(int argc, void **argv)
     uint32_t el = get_current_el();
 
     /* Say hello. */
-    printk("Welcome to Atmosph\xe8re Thermosph\xe8" "re!\n");
+    printk("Welcome to Asanosph\xe8re Thermosph\xe8" "re!\n");
     printk("Running at EL%d.\n", el);
 
     // ... and ensure we're in EL2.

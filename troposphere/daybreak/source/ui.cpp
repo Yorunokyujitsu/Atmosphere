@@ -66,8 +66,8 @@ namespace dbk {
         /* Update install state. */
         char g_update_path[FS_MAX_PATH];
         bool g_reset_to_factory = false;
-        bool g_exfat_supported = false;
-        bool g_use_exfat = false;
+        bool g_exfat_supported = true;
+        bool g_use_exfat = true;
 
         constexpr u32 MaxTapMovement = 20;
 
@@ -766,7 +766,7 @@ namespace dbk {
 
         /* Add buttons. */
         this->AddButton(BackButtonId, "Back", x + HorizontalInset, y + WindowHeight - BottomInset - ButtonHeight, button_width, ButtonHeight);
-        this->AddButton(ContinueButtonId, "Continue", x + HorizontalInset + button_width + ButtonHorizontalGap, y + WindowHeight - BottomInset - ButtonHeight, button_width, ButtonHeight);
+        this->AddButton(ContinueButtonId, "Update", x + HorizontalInset + button_width + ButtonHorizontalGap, y + WindowHeight - BottomInset - ButtonHeight, button_width, ButtonHeight);
         this->SetButtonEnabled(BackButtonId, false);
         this->SetButtonEnabled(ContinueButtonId, false);
 
@@ -889,11 +889,14 @@ namespace dbk {
                     /* Check if exfat is supported. */
                     g_exfat_supported = m_update_info.exfat_supported && R_SUCCEEDED(m_validation_info.exfat_result);
                     if (!g_exfat_supported) {
-                        g_use_exfat = false;
+                        g_use_exfat = true;
                     }
 
+                    /* Set the reset to factory settings flag to false by default. */
+                    g_reset_to_factory = false;
+
                     /* Create the next menu. */
-                    std::shared_ptr<Menu> next_menu = std::make_shared<ChooseResetMenu>(g_current_menu);
+                    std::shared_ptr<Menu> next_menu = std::make_shared<InstallUpdateMenu>(g_current_menu);
 
                     /* Warn the user if they're updating with exFAT supposed to be supported but not present/corrupted. */
                     if (m_update_info.exfat_supported && R_FAILED(m_validation_info.exfat_result)) {
@@ -960,11 +963,7 @@ namespace dbk {
 
             std::shared_ptr<Menu> next_menu;
 
-            if (g_exfat_supported) {
-                next_menu = std::make_shared<ChooseExfatMenu>(g_current_menu);
-            } else {
-                next_menu = std::make_shared<WarningMenu>(g_current_menu, std::make_shared<InstallUpdateMenu>(g_current_menu), "Ready to begin update installation", "Are you sure you want to proceed?");
-            }
+            next_menu = std::make_shared<WarningMenu>(g_current_menu, std::make_shared<InstallUpdateMenu>(g_current_menu), "Ready to begin update installation", "Are you sure you want to proceed?");
 
             if (g_reset_to_factory) {
                 ChangeMenu(std::make_shared<WarningMenu>(g_current_menu, next_menu, "Warning: Factory reset selected", "Saves and installed games will be permanently deleted."));
@@ -1022,7 +1021,7 @@ namespace dbk {
         if (const Button *activated_button = this->GetActivatedButton(); activated_button != nullptr) {
             switch (activated_button->id) {
                 case Fat32ButtonId:
-                    g_use_exfat = false;
+                    g_use_exfat = true;
                     break;
                 case ExFatButtonId:
                     g_use_exfat = true;
@@ -1268,7 +1267,7 @@ namespace dbk {
         }
 
         /* Change the current menu to the main menu. */
-        g_current_menu = std::make_shared<MainMenu>();
+        g_current_menu = std::make_shared<FileMenu>(nullptr, "/");
 
         return true;
     }
@@ -1277,7 +1276,8 @@ namespace dbk {
         if (InitializeMenu(screen_width, screen_height)) {
 
             /* Set the update path. */
-            strncpy(g_update_path, update_path, sizeof(g_update_path));
+            strncpy(g_update_path, update_path, sizeof(g_update_path) - 1);
+            g_update_path[sizeof(g_update_path) - 1] = '\0';
 
             /* Change the menu. */
             ChangeMenu(std::make_shared<ValidateUpdateMenu>(g_current_menu));

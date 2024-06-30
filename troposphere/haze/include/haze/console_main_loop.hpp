@@ -137,7 +137,7 @@ namespace haze {
 
                 /* Draw the console UI. */
                 consoleClear();
-                printf("USB File Transfer\n\n");
+                printf("Haze PTP/MTP - USB File Transfer\n\n");
                 printf("Connect console to computer. Press [+] to exit.\n");
                 printf("Heap used: %u %s / %u %s (%u%%)\n", heap_used, used_unit, heap_total, total_unit, heap_pct);
 

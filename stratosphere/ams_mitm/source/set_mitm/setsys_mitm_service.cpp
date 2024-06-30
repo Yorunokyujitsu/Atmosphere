@@ -60,14 +60,42 @@ namespace ams::mitm::settings {
 
             /* Modify the atmosphere firmware version to display a custom version string. */
             {
+                constexpr char CustomVersionFilePath[] = "@Sdcard:/atmosphere/contents/010B6ECF3B30D000/03/0100B0E8EB470000";
+                fs::FileHandle version_file;
+                char file_content[256] = {0};
+
+                if (R_SUCCEEDED(fs::OpenFile(std::addressof(version_file), CustomVersionFilePath, fs::OpenMode_Read))) {
+                    ON_SCOPE_EXIT { fs::CloseFile(version_file); };
+
+                    u64 read_size = 0;
+                    R_ABORT_UNLESS(fs::ReadFile(&read_size, version_file, 0, file_content, sizeof(file_content) - 1, fs::ReadOption()));
+                }
+
+                std::string version_string(file_content);
+                std::size_t first_delimiter_pos = version_string.find('|');
+                std::size_t second_delimiter_pos = version_string.find('|', first_delimiter_pos + 1);
+
+                std::string custom_version;
+                if (first_delimiter_pos != std::string::npos && second_delimiter_pos != std::string::npos) {
+                    custom_version = version_string.substr(first_delimiter_pos + 1, second_delimiter_pos - first_delimiter_pos - 1);
+                    custom_version.erase(0, custom_version.find_first_not_of(" "));
+                    custom_version.erase(custom_version.find_last_not_of(" ") + 1);
+                } 
+
                 const auto api_info = exosphere::GetApiInfo();
                 const char emummc_char = emummc::IsActive() ? 'E' : 'S';
-
-                /* NOTE: We have carefully accounted for the size of the string we print. */
-                /* No truncation occurs assuming two-digits for all version number components. */
                 char display_version[sizeof(g_ams_firmware_version.display_version)];
 
-                util::SNPrintf(display_version, sizeof(display_version), "%s|AMS %u.%u.%u|%c", g_ams_firmware_version.display_version, api_info.GetMajorVersion(), api_info.GetMinorVersion(), api_info.GetMicroVersion(), emummc_char);
+                if (!custom_version.empty()) {
+                    util::SNPrintf(display_version, sizeof(display_version), "%s %c | %u.%u.%u | %s", 
+                                g_ams_firmware_version.display_version, emummc_char, 
+                                api_info.GetMajorVersion(), api_info.GetMinorVersion(), api_info.GetMicroVersion(), 
+                                custom_version.c_str());
+                } else {
+                    util::SNPrintf(display_version, sizeof(display_version), "%s %c | %u.%u.%u | ASAP", 
+                                   g_ams_firmware_version.display_version, emummc_char, 
+                                   api_info.GetMajorVersion(), api_info.GetMinorVersion(), api_info.GetMicroVersion());
+                }
 
                 std::memcpy(g_ams_firmware_version.display_version, display_version, sizeof(display_version));
             }

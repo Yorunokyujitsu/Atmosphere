@@ -107,11 +107,11 @@ namespace ams::fatal::srv {
                            "support.nintendo.com/switch/error\n";
 
             /* If you're running Atmosphere on a quest unit for some reason, talk to me on discord. */
-            m_quest_desc = "Please call 1-800-875-1852 for service.\n\n"
-                           "Also, please be aware that running Atmosphere on a Quest device is not fully\n"
-                           "supported. Perhaps try booting your device without Atmosphere before calling\n"
+            m_quest_desc = "Please call 1670-9900 for service.\n\n"
+                           "Also, please be aware that running ASAP on a Quest device is not fully\n"
+                           "supported. Perhaps try booting your device without ASAP before calling\n"
                            "an official Nintendo service hotline. If you encounter further issues, please\n"
-                           "contact SciresM#0524 on Discord, or via some other means.\n";
+                           "contact Asa on Channel Talk, [https://asadayo.tistory.com]\n";
 
             /* TODO: Try to load dynamically? */
             /* FsStorage message_storage; */

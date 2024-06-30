@@ -277,18 +277,18 @@ namespace ams::fatal::srv {
             font::PrintFormatLine(  "Program:  %016lX", static_cast<u64>(m_context->program_id));
             font::AddSpacingLines(0.5f);
 
-            font::PrintFormatLine("Firmware: %s (Atmosphère %u.%u.%u-%s)", config.GetFirmwareVersion().display_version, ATMOSPHERE_RELEASE_VERSION, ams::GetGitRevision());
+            font::PrintFormatLine("Firmware: %s (Asanosphère %u.%u.%u-%s)", config.GetFirmwareVersion().display_version, ATMOSPHERE_RELEASE_VERSION, ams::GetGitRevision());
             font::AddSpacingLines(1.5f);
             if (!exosphere::ResultVersionMismatch::Includes(m_context->result)) {
                 font::Print(config.GetErrorDescription());
             } else {
                 /* Print a special message for atmosphere version mismatch. */
-                font::Print("Atmosphère version mismatch detected.\n\n"
+                font::Print("Asanosphère version mismatch detected.\n\n"
                                    "Please press the POWER Button to restart the console normally, or a VOL button\n"
                                    "to reboot to a payload (or RCM, if none is present). If you are unable to\n"
                                    "restart the console, hold the POWER Button for 12 seconds to turn the console off.\n\n"
-                                   "Please ensure that all Atmosphère components are updated.\n"
-                                   "github.com/Atmosphere-NX/Atmosphere/releases\n");
+                                   "Please ensure that all ASAP components are updated.\n"
+                                   "https://asadayo.tistory.com\n");
             }
 
             /* Add a line. */

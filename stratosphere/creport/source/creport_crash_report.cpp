@@ -361,7 +361,7 @@ namespace ams::creport {
     }
 
     void CrashReport::SaveToFile(ScopedFile &file) {
-        file.WriteFormat("Atmosphère Crash Report (v1.7):\n");
+        file.WriteFormat("Asanosphère Crash Report (v1.7):\n");
 
         file.WriteFormat("Result:                          0x%X (2%03d-%04d)\n\n", m_result.GetValue(), m_result.GetModule(), m_result.GetDescription());
 

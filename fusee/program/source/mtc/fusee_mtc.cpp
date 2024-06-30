@@ -60,6 +60,13 @@ namespace ams::nxboot {
             /* DramId_MarikoHoagMicron1y4gb    */ 0x0F,
             /* DramId_MarikoAulaMicron1y4gb    */ 0x0F,
             /* DramId_MarikoAulaSamsung1y8gbX  */ 0x0D,
+            /* 추가 부위 */
+            /* DramId_MarikoIowaHynix1a4gb     */ 0x10,
+            /* DramId_MarikoHoagHynix1a4gb     */ 0x10,
+            /* DramId_MarikoAulaHynix1a4gb     */ 0x10,
+            /* DramId_MarikoIowaMicron1a4gb    */ 0x0F,
+            /* DramId_MarikoHoagMicron1a4gb    */ 0x0F,
+            /* DramId_MarikoAulaMicron1a4gb    */ 0x0F,
         };
 
         int GetMemoryTrainingTableIndex() {

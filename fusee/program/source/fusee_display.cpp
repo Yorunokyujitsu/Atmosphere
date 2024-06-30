@@ -245,8 +245,8 @@ namespace ams::nxboot {
                     }
                 }
             } else if (f_ctx->error_desc == 0xF00) { /* Kernel Panic */
-                suggestion = "Please contact SciresM#0524 on Discord, or create an issue on the Atmosphere\n"
-                             "GitHub issue tracker. Thank you very much for helping to test mesosphere.\n";
+                suggestion = "Please contact Asa on Channel Talk, create an issue on the Blog\n"
+                             "https://asadayo.tistory.com\n";
             }
 
             /* If we found a suggestion, print it. */
@@ -596,7 +596,7 @@ namespace ams::nxboot {
         InitializeConsole(g_frame_buffer);
 
         {
-            Print("%s\n", "A fatal error occurred when running Atmosph\xe8re.");
+            Print("%s\n", "A fatal error occurred when running Asanosph\xe8re.");
             Print("Program ID: %016" PRIx64 "\n", f_ctx->program_id);
             Print("Error Desc: %s (0x%" PRIx32 ")\n", GetErrorDescription(f_ctx->error_desc), f_ctx->error_desc);
             Print("\n");
