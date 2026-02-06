@@ -97,21 +97,21 @@ namespace ams::fatal::srv {
 
         /* Setup messages. */
         {
-            m_error_msg = "Error Code: 2%03d-%04d (0x%x)\n";
+            m_error_msg = "오류 코드: 2%03d-%04d (0x%x)\n";
 
-            m_error_desc = "An error has occurred.\n\n"
-                           "Please press the POWER Button to restart the console normally, or a VOL button\n"
-                           "to reboot to a payload (or RCM, if none is present). If you are unable to\n"
-                           "restart the console, hold the POWER Button for 12 seconds to turn the console off.\n\n"
-                           "If the problem persists, refer to the Nintendo Support Website.\n"
-                           "support.nintendo.com/switch/error\n";
+            m_error_desc = "오류가 발생했습니다.\n\n"
+                           "재시작하려면 전원 혹은 볼륨 버튼을 입력하세요.\n"
+                           "페이로드가 없는 경우 RCM으로 진입합니다.\n"
+                           "재시작할 수 없는 경우, 12초 이상 전원 버튼의 입력을 유지하세요.\n\n"
+                           "문제가 계속 발생하면 고객지원 웹사이트에서 오류 코드를 참고하세요.\n"
+                           "https://support.nintendo.com/switch/error\n";
 
             /* If you're running Atmosphere on a quest unit for some reason, talk to me on discord. */
-            m_quest_desc = "Please call 1-800-875-1852 for service.\n\n"
-                           "Also, please be aware that running Atmosphere on a Quest device is not fully\n"
-                           "supported. Perhaps try booting your device without Atmosphere before calling\n"
-                           "an official Nintendo service hotline. If you encounter further issues, please\n"
-                           "contact SciresM#0524 on Discord, or via some other means.\n";
+            m_quest_desc = "공식 서비스 센터 (1670-9900)에 연락하세요.\n\n"
+                           "물리적 개조 기기라면 접수조차 불가능하다는 점은 알아두세요.\n"
+                           "서비스 센터 문의 전에 커펌을 풀고 정펌으로 부팅해 보시기를 권장합니다.\n"
+                           "추가 문제가 발생할 경우, 공식 Atmosphère를 사용하세요.\n"
+                           "올인원은 지원되지 않으니 절대 공식 깃허브에 문의하지 않길 바랍니다.\n";
 
             /* TODO: Try to load dynamically? */
             /* FsStorage message_storage; */

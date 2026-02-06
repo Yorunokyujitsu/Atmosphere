@@ -48,8 +48,9 @@ ROMFS		:=	romfs
 OUT_SHADERS	:=	shaders
 
 APP_TITLE     := Daybreak
-APP_AUTHOR    := Atmosphere-NX
-APP_VERSION   := 1.0.0
+#APP_AUTHOR    := Atmosphere-NX
+APP_AUTHOR    := Yorunokyujitsu # Translate only
+APP_VERSION   := 1.0.1
 
 #---------------------------------------------------------------------------------
 # options for code generation

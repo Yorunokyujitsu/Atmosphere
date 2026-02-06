@@ -87,9 +87,14 @@ namespace ams::mitm {
             }
         }
 
+        void GetBackupsFileName(char *dst, size_t dst_size, const char *fn) {
+            util::SNPrintf(dst, dst_size, "keys/%s", fn);
+        }
+
         void CreateAutomaticBackups() {
             /* Create a backup directory, if one doesn't exist. */
             mitm::fs::CreateAtmosphereSdDirectory("/automatic_backups");
+            mitm::fs::CreateBackupSdDirectory("/keys");
 
             /* Initialize PRODINFO and get a reference for the device. */
             char device_reference[0x40] = {};
@@ -124,13 +129,28 @@ namespace ams::mitm {
                     }
                 }
 
+                auto WriteBisFile = [&](const char *path, bool atmosphere) {
+                    if (atmosphere) {
+                        mitm::fs::CreateAtmosphereSdFile(path, sizeof(bis_keys), ams::fs::CreateOption_None);
+                        R_ABORT_UNLESS(mitm::fs::OpenAtmosphereSdFile(std::addressof(g_bis_key_file), path, ams::fs::OpenMode_ReadWrite));
+                        R_ABORT_UNLESS(fsFileSetSize(std::addressof(g_bis_key_file), sizeof(bis_keys)));
+                        R_ABORT_UNLESS(fsFileWrite(std::addressof(g_bis_key_file), 0, bis_keys, sizeof(bis_keys), FsWriteOption_Flush));
+                    } else {
+                        FsFile f;
+                        mitm::fs::CreateBackupSdFile(path, sizeof(bis_keys), ams::fs::CreateOption_None);
+                        R_ABORT_UNLESS(mitm::fs::OpenBackupSdFile(std::addressof(f), path, ams::fs::OpenMode_ReadWrite));
+                        R_ABORT_UNLESS(fsFileSetSize(std::addressof(f), sizeof(bis_keys)));
+                        R_ABORT_UNLESS(fsFileWrite(std::addressof(f), 0, bis_keys, sizeof(bis_keys), FsWriteOption_Flush));
+                    }
+                };
+
                 char bis_keys_backup_name[ams::fs::EntryNameLengthMax + 1];
                 GetBackupFileName(bis_keys_backup_name, sizeof(bis_keys_backup_name), device_reference, "BISKEYS.bin");
+                WriteBisFile(bis_keys_backup_name, true);
 
-                mitm::fs::CreateAtmosphereSdFile(bis_keys_backup_name, sizeof(bis_keys), ams::fs::CreateOption_None);
-                R_ABORT_UNLESS(mitm::fs::OpenAtmosphereSdFile(std::addressof(g_bis_key_file), bis_keys_backup_name, ams::fs::OpenMode_ReadWrite));
-                R_ABORT_UNLESS(fsFileSetSize(std::addressof(g_bis_key_file), sizeof(bis_keys)));
-                R_ABORT_UNLESS(fsFileWrite(std::addressof(g_bis_key_file), 0, bis_keys, sizeof(bis_keys), FsWriteOption_Flush));
+                char bis_keys_backup_name_alt[ams::fs::EntryNameLengthMax + 1];
+                GetBackupsFileName(bis_keys_backup_name_alt, sizeof(bis_keys_backup_name_alt), "BISKEYS.bin");
+                WriteBisFile(bis_keys_backup_name_alt, false);
                 /* NOTE: g_bis_key_file is intentionally not closed here.  This prevents any other process from opening it. */
             }
 

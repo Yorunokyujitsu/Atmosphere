@@ -77,6 +77,12 @@ namespace ams::mitm::fs {
         R_RETURN(DeleteSdFile(fixed_path));
     }
 
+    Result CreateBackupSdFile(const char *path, s64 size, s32 option) {
+        char fixed_path[ams::fs::EntryNameLengthMax + 1];
+        FormatBackupSdPath(fixed_path, sizeof(fixed_path), path);
+        R_RETURN(CreateSdFile(fixed_path, size, option));
+    }
+
     Result CreateAtmosphereSdFile(const char *path, s64 size, s32 option) {
         char fixed_path[ams::fs::EntryNameLengthMax + 1];
         FormatAtmosphereSdPath(fixed_path, sizeof(fixed_path), path);
@@ -86,6 +92,12 @@ namespace ams::mitm::fs {
     Result OpenSdFile(FsFile *out, const char *path, u32 mode) {
         R_TRY(EnsureSdInitialized());
         R_RETURN(fsFsOpenFile(std::addressof(g_sd_filesystem), path, mode, out));
+    }
+
+    Result OpenBackupSdFile(FsFile *out, const char *path, u32 mode) {
+        char fixed_path[ams::fs::EntryNameLengthMax + 1];
+        FormatBackupSdPath(fixed_path, sizeof(fixed_path), path);
+        R_RETURN(OpenSdFile(out, fixed_path, mode));
     }
 
     Result OpenAtmosphereSdFile(FsFile *out, const char *path, u32 mode) {
@@ -115,6 +127,12 @@ namespace ams::mitm::fs {
     Result CreateSdDirectory(const char *path) {
         R_TRY(EnsureSdInitialized());
         R_RETURN(fsFsCreateDirectory(std::addressof(g_sd_filesystem), path));
+    }
+
+    Result CreateBackupSdDirectory(const char *path) {
+        char fixed_path[ams::fs::EntryNameLengthMax + 1];
+        FormatBackupSdPath(fixed_path, sizeof(fixed_path), path);
+        R_RETURN(CreateSdDirectory(fixed_path));
     }
 
     Result CreateAtmosphereSdDirectory(const char *path) {
@@ -150,6 +168,14 @@ namespace ams::mitm::fs {
         char fixed_path[ams::fs::EntryNameLengthMax + 1];
         FormatAtmosphereRomfsPath(fixed_path, sizeof(fixed_path), program_id, path);
         R_RETURN(fsFsOpenDirectory(fs, fixed_path, mode, out));
+    }
+
+    void FormatBackupSdPath(char *dst_path, size_t dst_path_size, const char *src_path) {
+        if (src_path[0] == '/') {
+            util::SNPrintf(dst_path, dst_path_size, "/backup%s", src_path);
+        } else {
+            util::SNPrintf(dst_path, dst_path_size, "/backup/%s", src_path);
+        }
     }
 
     void FormatAtmosphereSdPath(char *dst_path, size_t dst_path_size, const char *src_path) {

@@ -510,7 +510,7 @@ namespace ams::nxboot {
             /* Parse fields from exosphere.ini */
             {
                 IniSectionList sections;
-                if (ParseIniSafe(sections, "sdmc:/exosphere.ini")) {
+                if (ParseIniSafe(sections, "sdmc:/atmosphere/config/exosphere.ini")) {
                     for (const auto &section : sections) {
                         /* We only care about the [exosphere] section. */
                         if (std::strcmp(section.name, "exosphere")) {
@@ -610,7 +610,7 @@ namespace ams::nxboot {
             {
                 /* Try to use an sd card file, if present. */
                 fs::FileHandle exo_file;
-                if (R_SUCCEEDED(fs::OpenFile(std::addressof(exo_file), "sdmc:/atmosphere/exosphere.bin", fs::OpenMode_Read))) {
+                if (R_SUCCEEDED(fs::OpenFile(std::addressof(exo_file), "sdmc:/atmosphere/config/exosphere.bin", fs::OpenMode_Read))) {
                     ON_SCOPE_EXIT { fs::CloseFile(exo_file); };
 
                     /* Note that we're using sd_exo. */

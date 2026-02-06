@@ -245,8 +245,8 @@ namespace ams::nxboot {
                     }
                 }
             } else if (f_ctx->error_desc == 0xF00) { /* Kernel Panic */
-                suggestion = "Please contact SciresM#0524 on Discord, or create an issue on the Atmosphere\n"
-                             "GitHub issue tracker. Thank you very much for helping to test mesosphere.\n";
+                suggestion = "Please do not bother the original repository’s developer.\n"
+                             "Instead, create an issue for Yorunokyujitsu on the Atmosphere GitHub repository.\n";
             }
 
             /* If we found a suggestion, print it. */
