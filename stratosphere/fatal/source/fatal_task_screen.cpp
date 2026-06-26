@@ -274,21 +274,21 @@ namespace ams::fatal::srv {
             font::SetFontSize(16.0f);
             font::PrintFormat(config.GetErrorMessage(), m_context->result.GetModule(), m_context->result.GetDescription(), m_context->result.GetValue());
             font::AddSpacingLines(0.5f);
-            font::PrintFormatLine(  "Program:  %016lX", static_cast<u64>(m_context->program_id));
+            font::PrintFormatLine(  "프로그램:  %016lX", static_cast<u64>(m_context->program_id));
             font::AddSpacingLines(0.5f);
 
-            font::PrintFormatLine("Firmware: %s (Atmosphère %u.%u.%u-%s)", config.GetFirmwareVersion().display_version, ATMOSPHERE_RELEASE_VERSION, ams::GetGitRevision());
+            font::PrintFormatLine("펌웨어: %s (Atmosphère %u.%u.%u-ASAP)", config.GetFirmwareVersion().display_version, ATMOSPHERE_RELEASE_VERSION);
             font::AddSpacingLines(1.5f);
             if (!exosphere::ResultVersionMismatch::Includes(m_context->result)) {
                 font::Print(config.GetErrorDescription());
             } else {
                 /* Print a special message for atmosphere version mismatch. */
-                font::Print("Atmosphère version mismatch detected.\n\n"
-                                   "Please press the POWER Button to restart the console normally, or a VOL button\n"
-                                   "to reboot to a payload (or RCM, if none is present). If you are unable to\n"
-                                   "restart the console, hold the POWER Button for 12 seconds to turn the console off.\n\n"
-                                   "Please ensure that all Atmosphère components are updated.\n"
-                                   "github.com/Atmosphere-NX/Atmosphere/releases\n");
+                font::Print("Atmosphère가 해당 펌웨어를 지원하지 않습니다.\n\n"
+                                   "재시작하려면 전원 혹은 볼륨 버튼을 입력하세요.\n"
+                                   "페이로드가 없는 경우 RCM으로 진입합니다.\n"
+                                   "문제가 계속 발생하면 고객지원 웹사이트에서 오류 코드를 참고하세요.\n"
+                                   "ASAP이 최신 버전을 지원하는지 확인하세요.\n"
+                                   "https://github.com/Yorunokyujitsu/ASAP-NX/releases\n");
             }
 
             /* Add a line. */

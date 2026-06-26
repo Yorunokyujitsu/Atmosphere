@@ -165,7 +165,7 @@ namespace ams::mitm {
         #undef DEFINE_CALIBRATION_CRC_BLOCK
         #undef DEFINE_CALIBRATION_SHA_BLOCK
 
-        constexpr inline const char BlankSerialNumberString[] = "XAW00000000000";
+        constexpr inline const char BlankSerialNumberString[] = "XAJ00000000000";
 
         template<typename Block>
         void Blank(Block &block) {
@@ -423,6 +423,32 @@ namespace ams::mitm {
             }
         }
 
+        void GetBackupsFileName(char *dst, size_t dst_size, const CalibrationInfo &info) {
+            char sn[0x20] = {};
+            ON_SCOPE_EXIT { std::memset(sn, 0, sizeof(sn)); };
+
+
+            if (IsValidForSecureBackup(info)) {
+                GetSerialNumber(sn, info);
+                util::SNPrintf(dst, dst_size, "keys/PRODINFO.bin");
+            } else {
+                Sha256Hash hash;
+                crypto::GenerateSha256(std::addressof(hash), sizeof(hash), std::addressof(info), sizeof(info));
+                ON_SCOPE_EXIT { crypto::ClearMemory(std::addressof(hash), sizeof(hash)); };
+
+                if (IsValid(info)) {
+                    if (IsBlank(info)) {
+                        util::SNPrintf(dst, dst_size, "keys/BLANK_PRODINFO.bin");
+                    } else {
+                        GetSerialNumber(sn, info);
+                        util::SNPrintf(dst, dst_size, "keys/PRODINFO.bin");
+                    }
+                } else {
+                    util::SNPrintf(dst, dst_size, "keys/INVALID_PRODINFO.bin");
+                }
+            }
+        }
+
         void SafeRead(ams::fs::fsa::IFile *file, s64 offset, void *dst, size_t size) {
             size_t read_size = 0;
             R_ABORT_UNLESS(file->Read(std::addressof(read_size), offset, dst, size));
@@ -465,6 +491,39 @@ namespace ams::mitm {
             }
 
             /* Save our storage to output. */
+            if (dst != nullptr) {
+                dst->emplace(std::move(file));
+            }
+        }
+
+        void SaveProdInfoBackups(util::optional<ams::fs::FileStorage> *dst, const CalibrationInfo &info) {
+            char backup_fn[0x100];
+            GetBackupsFileName(backup_fn, sizeof(backup_fn), info);
+
+            mitm::fs::CreateBackupSdFile(backup_fn, sizeof(CalibrationInfo), ams::fs::CreateOption_None);
+
+            FsFile libnx_file;
+            R_ABORT_UNLESS(mitm::fs::OpenBackupSdFile(std::addressof(libnx_file), backup_fn, ams::fs::OpenMode_ReadWrite));
+
+            std::unique_ptr<ams::fs::fsa::IFile> file = std::make_unique<ams::fs::RemoteFile>(libnx_file);
+            AMS_ABORT_UNLESS(file != nullptr);
+
+            bool valid = false;
+            s64 size;
+            R_ABORT_UNLESS(file->GetSize(std::addressof(size)));
+            if (size == sizeof(CalibrationInfo)) {
+                SafeRead(file.get(), 0, std::addressof(g_temp_calibration_info), sizeof(g_temp_calibration_info));
+                ON_SCOPE_EXIT { std::memset(std::addressof(g_temp_calibration_info), 0, sizeof(g_temp_calibration_info)); };
+
+                if (std::memcmp(std::addressof(info), std::addressof(g_temp_calibration_info), sizeof(CalibrationInfo)) == 0) {
+                    valid = true;
+                }
+            }
+
+            if (!valid) {
+                R_ABORT_UNLESS(file->Write(0, std::addressof(info), sizeof(info), ams::fs::WriteOption::Flush));
+            }
+
             if (dst != nullptr) {
                 dst->emplace(std::move(file));
             }
@@ -573,6 +632,7 @@ namespace ams::mitm {
         if (g_has_secure_backup) {
             GetSerialNumber(out_name, g_secure_calibration_info_backup.info);
             SaveProdInfoBackup(std::addressof(g_prodinfo_backup_file), g_secure_calibration_info_backup.info);
+            SaveProdInfoBackups(std::addressof(g_prodinfo_backup_file), g_secure_calibration_info_backup.info);
         } else {
             if (IsValid(g_calibration_info) && !IsBlank(g_calibration_info)) {
                 GetSerialNumber(out_name, g_calibration_info);
@@ -584,6 +644,7 @@ namespace ams::mitm {
                 util::SNPrintf(out_name, out_name_size, "%02X%02X%02X%02X", hash.data[0], hash.data[1], hash.data[2], hash.data[3]);
             }
             SaveProdInfoBackup(std::addressof(g_prodinfo_backup_file), g_calibration_info);
+            SaveProdInfoBackups(std::addressof(g_prodinfo_backup_file), g_calibration_info);
         }
 
         /* Ensure we made our backup. */

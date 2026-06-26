@@ -512,7 +512,7 @@ namespace ams::nxboot {
             /* Parse fields from exosphere.ini */
             {
                 IniSectionList sections;
-                if (ParseIniSafe(sections, "sdmc:/exosphere.ini")) {
+                if (ParseIniSafe(sections, "sdmc:/exosphere.ini") || ParseIniSafe(sections, "sdmc:/atmosphere/config/exosphere.ini")) {
                     for (const auto &section : sections) {
                         /* We only care about the [exosphere] section. */
                         if (std::strcmp(section.name, "exosphere")) {
@@ -616,25 +616,34 @@ namespace ams::nxboot {
             void *exosphere_dst = reinterpret_cast<void *>(0x40030000);
             bool use_sd_exo = false;
             {
-                /* Try to use an sd card file, if present. */
-                fs::FileHandle exo_file;
-                if (R_SUCCEEDED(fs::OpenFile(std::addressof(exo_file), "sdmc:/atmosphere/exosphere.bin", fs::OpenMode_Read))) {
-                    ON_SCOPE_EXIT { fs::CloseFile(exo_file); };
+                const char *exo_paths[] = {
+                    "sdmc:/atmosphere/exosphere.bin",
+                    "sdmc:/atmosphere/config/exosphere.bin"
+                };
 
-                    /* Note that we're using sd_exo. */
-                    use_sd_exo = true;
+                for (const char *path : exo_paths) {
+                    /* Try to use an sd card file, if present. */
+                    fs::FileHandle exo_file;
+                    if (R_SUCCEEDED(fs::OpenFile(std::addressof(exo_file), path, fs::OpenMode_Read))) {
+                        ON_SCOPE_EXIT { fs::CloseFile(exo_file); };
 
-                    Result result;
+                        /* Note that we're using sd_exo. */
+                        use_sd_exo = true;
 
-                    /* Get the size. */
-                    s64 size;
-                    if (R_FAILED((result = fs::GetFileSize(std::addressof(size), exo_file))) || size > sizeof(GetExternalPackage().exosphere)) {
-                        ShowFatalError("Invalid SD exosphere size: 0x%08" PRIx32 ", %" PRIx64 "!\n", result.GetValue(), static_cast<u64>(size));
-                    }
+                        Result result;
 
-                    /* Read the file. */
-                    if (R_FAILED((result = fs::ReadFile(exo_file, 0, exosphere_dst, size)))) {
-                        ShowFatalError("Failed to read SD exosphere: 0x%08" PRIx32 "!\n", result.GetValue());
+                        /* Get the size. */
+                        s64 size;
+                        if (R_FAILED((result = fs::GetFileSize(std::addressof(size), exo_file))) || size > sizeof(GetExternalPackage().exosphere)) {
+                            ShowFatalError("Invalid SD exosphere size: 0x%08" PRIx32 ", %" PRIx64 "!\n", result.GetValue(), static_cast<u64>(size));
+                        }
+
+                        /* Read the file. */
+                        if (R_FAILED((result = fs::ReadFile(exo_file, 0, exosphere_dst, size)))) {
+                            ShowFatalError("Failed to read SD exosphere: 0x%08" PRIx32 "!\n", result.GetValue());
+                        }
+
+                        break;
                     }
                 }
             }
