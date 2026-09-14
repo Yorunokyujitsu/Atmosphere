@@ -60,6 +60,32 @@ namespace ams::mitm::settings {
 
             /* Modify the atmosphere firmware version to display a custom version string. */
             {
+                constexpr char CustomVersionFilePath[] = "@Sdcard:/atmosphere/config/version.inc";
+                fs::FileHandle version_file;
+                char file_content[512] = {0};
+
+                std::string current_version_str;
+
+                if (R_SUCCEEDED(fs::OpenFile(std::addressof(version_file), CustomVersionFilePath, fs::OpenMode_Read))) {
+                    ON_SCOPE_EXIT { fs::CloseFile(version_file); };
+
+                    u64 read_size = 0;
+                    if (R_SUCCEEDED(fs::ReadFile(&read_size, version_file, 0, file_content, sizeof(file_content) - 1, fs::ReadOption()))) {
+                        std::string content(file_content);
+                        std::size_t section_pos = content.find("[ASAP]");
+                        if (section_pos != std::string::npos) {
+                            std::size_t key_pos = content.find("current_version=", section_pos);
+                            if (key_pos != std::string::npos) {
+                                key_pos += strlen("current_version=");
+                                std::size_t endline_pos = content.find_first_of("\r\n", key_pos);
+                                current_version_str = content.substr(key_pos, endline_pos - key_pos);
+                                current_version_str.erase(0, current_version_str.find_first_not_of(" \t"));
+                                current_version_str.erase(current_version_str.find_last_not_of(" \t") + 1);
+                            }
+                        }
+                    }
+                }
+
                 const auto api_info = exosphere::GetApiInfo();
                 const char emummc_char = emummc::IsActive() ? 'E' : 'S';
 
@@ -67,7 +93,16 @@ namespace ams::mitm::settings {
                 /* No truncation occurs assuming two-digits for all version number components. */
                 char display_version[sizeof(g_ams_firmware_version.display_version)];
 
-                util::SNPrintf(display_version, sizeof(display_version), "%s|AMS %u.%u.%u|%c", g_ams_firmware_version.display_version, api_info.GetMajorVersion(), api_info.GetMinorVersion(), api_info.GetMicroVersion(), emummc_char);
+                if (!current_version_str.empty()) {
+                    util::SNPrintf(display_version, sizeof(display_version), "%s %c|%u.%u.%u|%s",
+                                g_ams_firmware_version.display_version, emummc_char,
+                                api_info.GetMajorVersion(), api_info.GetMinorVersion(), api_info.GetMicroVersion(),
+                                current_version_str.c_str());
+                } else {
+                    util::SNPrintf(display_version, sizeof(display_version), "%s %c|%u.%u.%u|ASAP",
+                                   g_ams_firmware_version.display_version, emummc_char,
+                                   api_info.GetMajorVersion(), api_info.GetMinorVersion(), api_info.GetMicroVersion());
+                }
 
                 std::memcpy(g_ams_firmware_version.display_version, display_version, sizeof(display_version));
             }

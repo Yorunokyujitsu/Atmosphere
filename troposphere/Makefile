@@ -1,4 +1,4 @@
-APPLICATIONS := daybreak haze reboot_to_payload
+APPLICATIONS := daybreak reboot_to_payload
 
 SUBFOLDERS := $(APPLICATIONS)
 
