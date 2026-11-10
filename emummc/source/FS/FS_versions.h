@@ -127,9 +127,12 @@ enum FS_VER
     
     FS_VER_22_5_0,
     FS_VER_22_5_0_EXFAT,
-    
+
     FS_VER_23_0_0,
     FS_VER_23_0_0_EXFAT,
+
+    FS_VER_23_5_0,
+    FS_VER_23_5_0_EXFAT,
 
     FS_VER_MAX,
 };
